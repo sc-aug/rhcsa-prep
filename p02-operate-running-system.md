@@ -51,9 +51,9 @@
 * Location of unit configuration files
   - unit-config-file for **SYSTEM** service `/usr/lib/systemd/system`
   - unit-config-file for **CUSTOMIZE** service `/etc/systemd/system`. **Loads before & Overrides (service with same name) the services in** `/usr/lib/systemd/system`.
-* Look inside unit-config-file
+* Look inside a unit-config-file
 ```
-### Ex1. /usr/lib/systemd/system/sshd.service
+### Ex. /usr/lib/systemd/system/sshd.service
 [Unit]
 Description=OpenSSH server daemon
 Documentation=man:sshd(8) man:sshd_config(5)
@@ -128,14 +128,64 @@ From `graphical.target` to `multi-user.target`/`emergency.target`/`rescue.target
 6. Finish `# eixt`
 
 ### Identify CPU/Memory Intensive Processes, Adjust Process Priority and Kill Processes
-**keywords**: cpu, memory, process, kill, priority, `ps`
+**keywords**: cpu, memory, process, kill, priority, nice, renice, `ps`
 
 #### Processes
 * `ps`
   - `# ps aux | grep httpd` is equivalent to `# pgrep httpd`
 * `pgrep`
   - `# pgrep httpd -l`, `-l` add the processes' names
-  - `# pgrep -u chuan -l` show the processes runned by that user
+  - `# pgrep -u chuan -l`, show the processes owned by that user
   - `# pgrep -u chuan -l httpd`
+  - `# pgrep -v -u chuan -l`, `-v` = inverse. processes not owned by user
+* `pkill`
+  - `# pkill httpd`, grep all processes named httpd and kill them
+  - `-15`/`-SIGTERM` as default
+  - `# pkill -t pts/1` kill by terminal
+  - `# pkill -u chuan sshd` kill by user name
+* `kill`
+  - `# kill -l`, show all the available signals
+* **Signals** [link](https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html)
+  - `-15`/`-SIGTERM` nice kill, terminate cleanly, best way (common way)
+  - `-9`/`-SIGKILL` kill immediately, kill **malicious processes**, do not allow anything to block the process/cleanup.
+  - `-1`/`-SIGHUP` report a controlling process in terminal
+  - `-2`/`-SIGINT` keyboard interrupt
+  - `-3`/`-SIGQUIT`
+  - `-18`/`-SIGCONT`
+  - `-19`/`-SIGSTOP` cannot be ignored
+  - `-20`/`-SIGTSTP` can be ignored
+* Create a dumy process
+```
+# (while true; do echo -n "my program" >> ~/output.file; sleep 1; done) &  ### jobs running in background
+# jobs ### show running jobs
+# kill -SIGSTOP %1 ### %1 is the job number
+# kill -SIGCONT %1
+# kill %1 
+```
 
+//++
 
+### Start, Stop and Check the Status of Network Services
+```
+# systemctl start network.service
+# systemctl stop network
+# systemctl status network
+# systemctl is-enabled network
+# systemctl is-enabled network
+# systemctl enable network
+# systemctl disable network
+```
+
+### Securely Transfer Files Between Systems
+* `scp` or `sftp` using port 22
+```
+# scp mydir/myfile username@destination.address:/home/username/
+#
+# sftp username@destination.address
+sftp> ?
+sftp> ls
+sftp> cd
+sftp> get Somefile
+sftp> put mydir/myfile
+sftp> quit
+```
