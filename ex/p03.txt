@@ -1,0 +1,374 @@
+#######
+Exercise: Working with MBR Partitions
+
+1. Start a Red Hat 7 lab server and mount a new disk. Once completed, log in to the system and navigate to the /dev directory.
+
+[root@localhost] cd /dev
+
+2. Create a primary Linux partition that is 500M in size on the attached disk.
+
+[root@localhost] fdisk xvdf
+
+Command (m for help): n 
+Partition type:    p   primary (0 primary, 0 extended, 4 free)    e   extended Select (default p): p 
+Partition number (1-4, default 1): 
+First sector (2048-2097151, default 2048): 
+Using default value 2048
+Last sector, +sectors or +size{K,M,G} (2048-2097151, default 2097151): +500M
+Partition 1 of type Linux and of size 500 MiB is set 
+Command (m for help): 
+
+3. Set the partition type for a basic Linux volume.
+
+Command (m for help): t
+Selected partition 1 Hex code (type L to list all codes): 83
+Changed type of partition 'Linux' to 'Linux' (notice the default is already Linux).
+
+4. Write changes and exit.
+
+Command (m for help): w 
+The partition table has been altered! Calling ioctl() to re-read partition table. Syncing disks.
+
+5. Issue the command to list the block device and it's UUID (Universally Unique Identifier).
+
+[root@localhost] blkid
+
+6. Create an XFS filesystem on the disk.
+
+[root@localhost] mkfs -t xfs /dev/xvdf1
+
+7. Mount the partition to /mnt/mymount.
+
+[root@localhost] mkdir /mnt/mymount
+[root@localhost] mount /dev/xvdf1 /mnt/mymount
+[root@localhost] df -h
+Filesystem      Size  Used Avail Use% Mounted on 
+/dev/xvda2      6.0G  3.9G  2.1G  65% /
+devtmpfs        482M     0  482M   0% /dev 
+tmpfs          497M     0  497M   0% /dev/shm 
+tmpfs           497M   13M  484M   3% /run 
+tmpfs          497M     0  497M   0% /sys/fs/cgroup
+/dev/xvdf1 497M   26M  472M   6% /mnt/mymount
+
+8. Configure the disk to mount to the /mnt/mymount mount point automatically during system boot.
+
+[root@localhost] blkid
+/dev/xvdf1: UUID="" TYPE="xfs"
+[root@localhost] vim fstab 
+UUID="your uuid here" /mnt/mymount xfs defaults 1 1
+[root@localhost] umount /mnt/mymount
+[root@localhost] mount -a
+[root@localhost] df -h
+Filesystem Size Used Avail Use% Mounted on
+/dev/xvda2 6.0G 3.9G 2.1G 65% /
+devtmpfs 482M 0 482M 0% /dev
+tmpfs 497M 13M 484M 3% /run
+tmpfs 497M 0 497M 0% /sys/fs/cgroup
+/dev/xvdf1 497M 26M 472M 6% /mnt/mymount
+
+#######
+Exercise: Working with GPT Partitions
+
+1. Start a Red Hat 7 LinuxAcademy.com lab server and "mount" a new disk. Once completed, log in to the system and navigate to the /dev directory.
+
+[root@localhost]# cd /dev
+
+2. Create a primary Linux partition that is 500M in size on the attached disk.
+
+[root@localhost]# gdisk xvdf
+GPT fdisk (gdisk) version 0.8.6
+Partition table scan:
+  MBR: not present
+  BSD: not present
+  APM: not present
+  GPT: not present
+Creating new GPT entries.
+Command (? for help): n
+Partition number (1-128, default 1): 
+First sector (34-2097118, default = 2048) or {+-}size{KMGTP}
+Last sector (2048-2097118, default = 2097118) or {+-}size{KMGTP}: +500M
+Current type is 'Linux filesystem'
+Hex code or GUID (L to show codes, Enter = 8300): 8300
+Changed type of partition to 'Linux filesystem'
+
+3. Write changes and exit.
+
+Command (? for help): w
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+Do you want to proceed? (Y/N): Y
+OK; writing new GUID partition table (GPT) to xvdf.
+The operation has completed successfully.
+
+4. Issue the command to list the block device and its UUID.
+
+[root@localhost]# blkid
+
+5. Create an XFS filesystem on the disk.
+
+[root@localhost]# mkfs -t xfs /dev/xvdf1.
+
+6. Mount the partition to /mnt/mymount.
+
+[root@localhost]# mkdir /mnt/mymount
+[root@localhost]# mount /dev/xvdf1 /mnt/mymount
+
+7. Configure the disk to mount automatically during system boot to the /mnt/mymount mount point.
+
+[root@localhost]# blkid
+/dev/xvdf1: UUID="" TYPE="xfs" 
+[root@localhost]# vim /etc/fstab 
+UUID="your uuid here" /mnt/mymount        xfs     defaults 1 1
+[root@localhost]# umount /mnt/mymount
+[root@localhost]# mount -a
+[root@localhost]# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/xvda2      6.0G  3.9G  2.1G  65% /
+devtmpfs        482M     0  482M   0% /dev
+tmpfs           497M   13M  484M   3% /run
+tmpfs           497M     0  497M   0% /sys/fs/cgroup
+/dev/xvdf1      497M   26M  472M   6% /mnt/mymount
+
+#######
+Exercise: Creating Persistent Mounts with File System Labels
+
+1. Attach a LinuxAcademy.com external device (mount) to the lab server.
+
+2. Create two partitions, 500M each, on the device.
+
+[root@localhost dev]# fdisk /dev/xvdfWelcome to fdisk (util-linux 2.23.2).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+Command (m for help): n
+Partition type:
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended
+Select (default p): 
+Using default response p
+Partition number (1-4, default 1): 
+First sector (2048-2097151, default 2048):  
+Using default value 2048
+Last sector, +sectors or +size{K,M,G} (2048-2097151, default 2097151): +500M
+Partition 1 of type Linux and of size 500 MiB is set
+ 
+Command (m for help): n
+Partition type:
+   p   primary (1 primary, 0 extended, 3 free)
+   e   extended
+Select (default p): 
+Using default response p
+Partition number (2-4, default 2): 
+First sector (1026048-2097151, default 1026048): 
+Using default value 1026048
+Last sector, +sectors or +size{K,M,G} (1026048-2097151, default 2097151): +500M
+Partition 2 of type Linux and of size 500 MiB is set
+ 
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+Syncing disks.
+
+3. On the "xvdf1" partition, create an XFS file system.
+
+[root@localhost dev]# mkfs -t xfs xvdf1
+
+4. On the "xvdf2" partition, create an EXT4 file system.
+
+[root@localhost dev]# mkfs -t ext4  xvdf2
+
+5. On the "xvdf1" partition, label the filesystem as "filesystem1".
+
+[root@localhost dev]# xfs_admin -L "filesystem1" /dev/xvdf1
+[root@localhost dev]# xfs_admin -l /dev/xvdf1
+label = "filesystem1"
+
+6. On the "xvdf2"partition, label the filesystem as "filesystem2".
+
+[root@localhost dev]# tune2fs -L "filesystem2" /dev/xvdf2
+or
+[root@localhost dev]# e2label /dev/xvdf2
+filesystem2
+
+7. Create a persistent mount in the /etc/fstab file with defaults as the mount option for the xvdf1 partition and use the mount point /mnt/mount1.
+
+LABEL=filesystem1 /mnt/mount1 xfs defaults 1 2 
+
+8. Create a persistent mount in the /etc/fstab file with defaults as the mount option for the xvdf2 partition and use the mount /mnt/mount2. Set the fsck check to 2 and the dump to 1.
+
+LABEL=filesystem2 /mnt/mount2 ext4 defaults 1 2
+
+#######
+Exercise: Creating Swap Space
+
+1. Create a LinuxAcademy.com lab server and mount a disk.
+
+2. The LinuxAcademy.com lab servers already have swap enabled, so first run swapoff to disable the /swapfile in the /etc/fstab file.
+
+[root@localhost etc]# swapoff -a
+Note: swapoff -a disables the swap space listed in /etc/fstab.
+
+3. Remove the entry /swapfile from the /etc/fstab file.
+
+[root@localhost etc# vim fstab
+#
+# /etc/fstab
+# Created by anaconda on Fri Oct 17 18:33:48 2014
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=668dbd02-c201-44bc-be76-f606fc9ab8db /                       xfs     defaults        1 1
+
+4. Verify there is no current swap space available
+
+[root@localhost etc]# free -m
+             total       used       free     shared    buffers     cached
+Mem:           992        225        767         12          1         82
+-/+ buffers/cache:        141        851
+Swap:            0          0          0
+
+5. Using fdisk, create a partition that uses the entire /dev/xvdf disk; make sure to label the device correctly.
+
+[root@localhost dev]# fdisk xvdf
+Welcome to fdisk (util-linux 2.23.2).
+
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+ 
+Device does not contain a recognized partition table
+Building a new DOS disklabel with disk identifier 0x69baf224.
+ 
+Command (m for help): n
+Partition type:
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended
+Select (default p): 
+Using default response p
+Partition number (1-4, default 1): 
+First sector (2048-2097151, default 2048): 
+Using default value 2048
+Last sector, +sectors or +size{K,M,G} (2048-2097151, default 2097151): 
+Using default value 2097151
+Partition 1 of type Linux and of size 1023 MiB is set
+ 
+Command (m for help): t
+Selected partition 1
+Hex code (type L to list all codes): 82
+Changed type of partition 'Linux' to 'Linux swap / Solaris'
+ 
+Command (m for help): w
+The partition table has been altered!
+ 
+Calling ioctl() to re-read partition table.
+Syncing disks.
+
+6. Format the device with the swap signature.
+
+[root@localhost dev]# mkswap /dev/xvdf1
+Setting up swapspace version 1, size = 1047548 KiB
+no label, UUID=5713eae2-de6b-4485-af5d-1c659765cd92
+
+7. Activate the swap space.
+
+[root@localhost dev]# swapon /dev/xvdf1
+[root@localhost dev]# free -m
+             total       used       free     shared    buffers     cached
+Mem:           992        216        776         12          0         79
+-/+ buffers/cache:        135        857
+Swap:         3046          0       3046
+
+8. Add swap space to the /etc/fstab so that it is a persistent mount.
+
+[root@localhost dev]# blkid
+/dev/xvda2: UUID="" TYPE="xfs" PARTUUID="9146b810-9a31-4c10-a206-01b0bbaca807" 
+/dev/xvdf1: UUID="" TYPE="swap" 
+Grab the UUID to mount the swap device.
+[root@localhost dev]# vim /etc/fstab
+#
+# /etc/fstab
+#
+UUID=668dbd02-c201-44bc-be76-f606fc9ab8db /                       xfs     defaults        1 1
+UUID=YOUR-UUID swap  swap    defaults 0 0 
+
+9. Activate the swap space that is added in the /etc/fstab file.
+
+Since we activated it manually already, this manually deactivates it, then activates it based on the /etc/fstab file.
+
+[root@localhost dev]# swapoff /dev/xvdf1
+Now activate it persistently based off the /etc/fstab entry:
+
+[root@localhost dev]# swapon -a
+-a activates all swap spaces located in the /etc/fstab.
+
+#######
+Exercise: Creating Swap Space from a LVM Volume
+1. Start the LinuxAcademy.com lab server and mount a new disk; ensure LVM utilities are installed on the system.
+
+[root@localhost #] yum install lvm2
+
+2. Create a partition that uses the entire disk space on /dev/xvdf.
+
+[root@localhost dev]# fdisk /dev/xvdf
+Welcome to fdisk (util-linux 2.23.2).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+Device does not contain a recognized partition table.
+Building a new DOS disklabel with disk identifier 0x0631abd7.
+Command (m for help): n
+Partition type:
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended
+
+Select (default p): 
+Using default response p
+Partition number (1-4, default 1): 
+First sector (2048-2097151, default 2048): 
+Using default value 2048
+Last sector, +sectors or +size{K,M,G} (2048-2097151, default 2097151): 
+Using default value 2097151
+Partition 1 of type Linux and of size 1023 MiB is set
+Command (m for help): t
+Selected partition 1
+Hex code (type L to list all codes): 8e
+Changed type of partition 'Linux' to 'Linux LVM'
+Command (m for help): w
+The partition table has been altered!
+Calling ioctl() to re-read partition table.
+Syncing disks.
+
+3. Create a physical volume and a new volume group named "battlestar" out of the /dev/xvdf1 partition.
+
+[root@localhost #] pvcreate /dev/xvdf1
+[root@localhost #] vgcreate battlestar /dev/xvdf1
+
+4. Create a new LVM volume that is approximately 500M in size (generally, you want it to be 2 to 2.5 times the size of your physical memory; however, this is a lab environment).
+
+[root@localhost dev]# lvcreate -n swap -L 500M battlestar
+5. Format the new LVM volume with a swap signature.
+
+[root@loclhost dev] #  mkswap /dev/battlestar/swap
+Setting up swapspace version 1, size = 511996 KiB
+no label, UUID=679ea5a2-c652-458a-8726-6e3970d1f58f // (Note use your UUID provded not the one here)
+
+6. Add an entry into the /etc/fstab file using the UUID of the LVM device to create a persistent swap mount.
+
+#
+# /etc/fstab
+UUID=668dbd02-c201-44bc-be76-f606fc9ab8db /                       xfs     defaults        1 1
+UUID=679ea5a2-c652-458a-8726-6e3970d1f58f swap swap defaults 0 0 
+7. Run the swapon command that enables all swap entires in the /etc/fstab file.
+
+[root@localhost dev]# swapon -a
+
+8. Verify swap space is working.
+
+[root@localhost dev]# free -m
+or
+
+[root@localhost dev]# swapon -s
+[root@localhost dev]# cat /proc/swaps
+
+9. Reboot and test.
+
+[root@localhost dev]# reboot

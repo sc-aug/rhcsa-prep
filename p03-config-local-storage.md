@@ -1,3 +1,5 @@
+## Configure Local Storage
+
 ### List, Create and Delete Partitions on MBR and GPT Disks
 
 #### MBR & GPT
@@ -150,3 +152,378 @@ Do you want to proceed? (Y/N): y
 OK; writing new GUID partition table (GPT) to /dev/xvdf.
 The operation has completed successfully.
 ```
+
+### Create and Remote Phsical Volumes, Assign Physical Volumes to Volume Groups and Create and Delete Logical Volumes
+* LVM allows us to virtually create disk space based of multiple **physical volumes**.
+* Each LVM (Logical Volume Manager) has a underlying physical storage unit.
+* A **phisical volume** can either be a partition or device or an entire disk.
+* A volume group is made up of physical volume.
+
+Notes:
+* `xfs` FS can only be increase in size.
+* `ext4` FS can be increase and decrease in size
+
+```
+####### Create LVM
+#
+# gdisk xvdf
+GPT fdisk (gdisk) version 0.8.6
+
+Creating new GPT entries.
+
+Command (? for help): n
+Partition number (1-128, default 1):
+First sector (34-41943006, default = 2048) or {+-}size{KMGTP}:
+Last sector (2048-41943006, default = 41943006) or {+-}size{KMGTP}:
+Current type is 'Linux filesystem'
+Hex code or GUID (L to show codes, Enter = 8300): 8e00 ## create LVM
+Changed type of partition to 'Linux LVM'
+
+Command (? for help): w
+
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+
+Do you want to proceed? (Y/N): y
+OK; writing new GUID partition table (GPT) to xvdf.
+The operation has completed successfully.
+#
+# gdisk xvdg
+GPT fdisk (gdisk) version 0.8.6
+
+Creating new GPT entries.
+
+Command (? for help): n
+Partition number (1-128, default 1):
+First sector (34-41943006, default = 2048) or {+-}size{KMGTP}:
+Last sector (2048-41943006, default = 41943006) or {+-}size{KMGTP}:
+Current type is 'Linux filesystem'
+Hex code or GUID (L to show codes, Enter = 8300): 8e00
+Changed type of partition to 'Linux LVM'
+
+Command (? for help): w
+
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+
+Do you want to proceed? (Y/N): y
+OK; writing new GUID partition table (GPT) to xvdg.
+The operation has completed successfully.
+#
+#
+####### Create/Prepare physical volume for LVM
+#
+#
+# pvcreate /dev/xvdf1 /dev/xvdg1
+  Physical volume "/dev/xvdf1" successfully created.
+  Physical volume "/dev/xvdg1" successfully created.
+# pvdisplay
+  "/dev/xvdf1" is a new physical volume of "<20.00 GiB"
+  --- NEW Physical volume ---
+  PV Name               /dev/xvdf1
+  VG Name
+  PV Size               <20.00 GiB
+  Allocatable           NO
+  PE Size               0
+  Total PE              0
+  Free PE               0
+  Allocated PE          0
+  PV UUID               d8Pqav-31jJ-uT4a-QeBv-AotY-ZvWF-rcF5CZ
+
+  "/dev/xvdg1" is a new physical volume of "<20.00 GiB"
+  --- NEW Physical volume ---
+  PV Name               /dev/xvdg1
+  VG Name
+  PV Size               <20.00 GiB
+  Allocatable           NO
+  PE Size               0
+  Total PE              0
+  Free PE               0
+  Allocated PE          0
+  PV UUID               WrpKXX-0p9q-5l5J-ilTf-tW0m-P3V6-Papwc6
+#
+#
+####### Create Volume Group
+# vgcreate ship /dev/xvdf1 /dev/xvdg1
+  Volume group "ship" successfully created
+# vgdisplay
+  --- Volume group ---
+  VG Name               ship
+  System ID
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  1
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                0
+  Open LV               0
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               39.99 GiB
+  PE Size               4.00 MiB
+  Total PE              10238
+  Alloc PE / Size       0 / 0
+  Free  PE / Size       10238 / 39.99 GiB
+  VG UUID               XfbJeH-Ssdm-WXcy-Gr2z-aatw-Agju-M5ZKCm
+
+#
+#
+####### Create Logical Volume
+# lvcreate -n cargo01 -L 10G ship ## create logical volume and specify name, create from the volume group `ship`.
+  Logical volume "cargo01" created.
+# lvdisplay
+  --- Logical volume ---
+  LV Path                /dev/ship/cargo01
+  LV Name                cargo01
+  VG Name                ship
+  LV UUID                vKnvH2-ocvZ-lD1w-WHXc-okMv-ErJV-TAakGI
+  LV Write Access        read/write
+  LV Creation host, time linuxacademy1, 2018-02-06 16:37:41 -0500
+  LV Status              available
+  # open                 0
+  LV Size                10.00 GiB
+  Current LE             2560
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:0
+# lvcreate -n cargo02 -L 5G ship
+  Logical volume "cargo02" created.
+# vgdisplay
+  --- Volume group ---
+  VG Name               ship
+  System ID
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               0
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               39.99 GiB
+  PE Size               4.00 MiB
+  Total PE              10238
+  Alloc PE / Size       3840 / 15.00 GiB
+  Free  PE / Size       6398 / 24.99 GiB
+  VG UUID               XfbJeH-Ssdm-WXcy-Gr2z-aatw-Agju-M5ZKCm
+
+####### Create FS
+# mkfs -t xfs /dev/ship/cargo01
+meta-data=/dev/ship/cargo01      isize=512    agcount=4, agsize=655360 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=2621440, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=2560, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+#
+#
+####### Mount partition
+# mkdir /mnt/mymount
+# mount /dev/ship/cargo01 /mnt/mymount
+# df -h
+Filesystem                Size  Used Avail Use% Mounted on
+/dev/xvda2                 10G  1.9G  8.2G  19% /
+devtmpfs                  477M     0  477M   0% /dev
+tmpfs                     496M     0  496M   0% /dev/shm
+tmpfs                     496M   13M  483M   3% /run
+tmpfs                     496M     0  496M   0% /sys/fs/cgroup
+tmpfs                     100M     0  100M   0% /run/user/1001
+tmpfs                     100M     0  100M   0% /run/user/0
+/dev/mapper/ship-cargo01   10G   33M   10G   1% /mnt/mymount
+#
+#
+####### Unmount
+# umount /mnt/mymount/
+# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/xvda2       10G  1.9G  8.2G  19% /
+devtmpfs        477M     0  477M   0% /dev
+tmpfs           496M     0  496M   0% /dev/shm
+tmpfs           496M   13M  483M   3% /run
+tmpfs           496M     0  496M   0% /sys/fs/cgroup
+tmpfs           100M     0  100M   0% /run/user/1001
+tmpfs           100M     0  100M   0% /run/user/0
+#
+#
+####### Remove Logical Volumes
+# lvremove /dev/ship/cargo01
+Do you really want to remove active logical volume ship/cargo01? [y/n]: y
+  Logical volume "cargo01" successfully removed
+# lvremove /dev/ship/cargo02
+Do you really want to remove active logical volume ship/cargo02? [y/n]: y
+  Logical volume "cargo02" successfully removed
+# lvdisplay
+## Nothing output...
+#
+#
+####### Remove Volume Group
+# vgdisplay
+  --- Volume group ---
+  VG Name               ship
+  System ID
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  5
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                0
+  Open LV               0
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               39.99 GiB
+  PE Size               4.00 MiB
+  Total PE              10238
+  Alloc PE / Size       0 / 0
+  Free  PE / Size       10238 / 39.99 GiB
+  VG UUID               XfbJeH-Ssdm-WXcy-Gr2z-aatw-Agju-M5ZKCm
+#
+#
+# vgremove ship
+  Volume group "ship" successfully removed
+# vgdisplay
+## Nothing output...
+#
+#
+####### Remove Physical Volume
+# pvdisplay
+# pvremove /dev/xvdf1 /dev/xvdg1
+  Labels on physical volume "/dev/xvdf1" successfully wiped.
+  Labels on physical volume "/dev/xvdg1" successfully wiped.
+```
+
+#### Configure Systems to Mount File Systems at Boot by UUID or Label
+
+```
+####### Create 2 partition
+# fdisk /dev/xvdf
+### create 2 partition 500M each. /dev/xvdf1 & /dev/xvdf2
+#
+#
+####### Create FS (xfs & ext4)
+# mkfs -t xfs /dev/xvdf1
+# mkfs -t ex4 /dev/xvdf2
+#
+# blkid ### blkid - locate/print block device attributes
+#
+#
+####### Create label for xfs FS
+# xfs_admin 
+# xfs_admin -L myfs1 /dev/xvdf1
+writing all SBs
+new label = "myfs1"
+# xfs_admin -l /dev/xvdf1
+label = "myfs1"
+#
+# tune2fs -L myfs2 /dev/xvdf2
+tune2fs 1.42.9 (28-Dec-2013)
+# tune2fs -l /dev/xvdf2
+#
+######## Edit `/etc/fstab` file
+### https://help.ubuntu.com/community/Fstab
+### [Device] [Mount Point] [File System Type] [Options] [Dump] [Pass]
+### Dump: the backup utility dump will backup file system
+### Pass: Fsck order is to tell fsck what order to check the file systems
+##############################
+######### FILE START #########
+#
+# /etc/fstab
+# Created by anaconda on Fri Oct 17 18:33:48 2014
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=668dbd02-c201-44bc-be76-f606fc9ab8db / xfs defaults  1 1
+/swapfile swap	swap	defaults 0 0
+UUID=ba02b097-d205-4eff-b37b-1d1778fb62d1	/mnt/fs1	xfs	defaults	1	2
+LABEL=myfs2	/mnt/fs2	ext4	defaults	1	2
+#
+######### FILE END ###########
+##############################
+#
+#
+####### Mount
+# mount -a ### mount everything in /etc/fstab
+# ## umount -a ### unmount everything in /etc/fstab
+# df -h
+```
+
+#### Add New Partitions and Logical Volumes and Swap to a System Non-Destructively (Persistent)
+
+```
+Logical Volume and Regular Device as Swap
+
+          [/dev/xvdf]                                         [/dev/xvdg]
+    pv    [/dev/xvdf1]       partition created by fdisk/gdisk [/dev/xvdg1]
+    vg    [/dev/ship]                                         can be format as swap
+    lv    [/dev/ship/myswap1]
+          can be format as swap
+```
+
+
+```
+### /dev/xvdf & /dev/xvdg & /dev/xvdj
+# free -m
+####### Create partitions
+# fdisk /dev/xvdf
+## l - list partition type
+## n - create
+## +20GB ## default: use all disk space
+## t ## change partitions
+## 8e ## changed type of partition 'Linux' to 'Linux LVM'
+## w ## Write
+#
+#
+####### Create pv (Physical Volume) & vg (Volume Group)
+# pvcreate /dev/xvdf1
+# pvdisplay
+# vgcreate ship /dev/xvdf1
+# vgdisplay
+#
+####### Create lv (Logical Volume)
+# lvcreate -n myswap1 -L 2G ship
+  Logical volume "myswap1" created
+# lvdisplay
+#
+#
+####### Create/Format Swap
+# mkswap /dev/ship/myswap1
+Setting up swapspace version 1, size = 2097148 KiB
+no label, UUID=cc8aa7d7-69d9-430a-be3b-80eb0930fd18
+#
+# swapon /dev/ship/myswap1
+# free -m
+# swapoff /dev/ship/myswap1
+# free -m
+#
+######## Create partition for swap
+# fdisk xvdg
+command: n
+command: t
+Hex code (type L to list all codes): 82 ### for swap
+command: w
+#
+#
+######## HAVE SOME SKIPPED STEPS #########
+######## Edit `/etc/fstab` file
+#
+# swapon /dev/ship/myswap1
+# 
+# swapoff /dev/xvdg1
+# 
+# swapon -a
+# swapoff -a
+# swapon -s ### summary of swap. Equivalent to "cat /proc/swaps"
+```
+
