@@ -16,7 +16,7 @@
 ```
 ####### First partition
 # fdisk /dev/xvdf
-command: m ## show help menu
+command: m ## show help manual
 command: n ## new partition
 ...
 Last sector, +sectors or +size{K,M,G} (2048-2097151, default 2097151): +500M
