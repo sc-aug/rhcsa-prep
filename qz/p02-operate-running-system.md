@@ -1,0 +1,83 @@
+OPERATE RUNNING SYSTEMS
+
+1) Only a privileged user can run a process with lower niceness.
+* True
+
+2) How do you find all man pages associated with systemd?
+* apropos systemd
+
+3) How do you view the disabled/enabled settings of all units with the type "service"?
+* systemctl list-unit-files --type=service
+
+4) Which command displays all available kill signals?
+* kill -l
+
+5) Which "niceness" is the least favorable for a process?
+* 19
+
+6) -20 is the most favorable for a given process.
+* True
+
+7) Which command(s) would perform a reboot on the system?
+* systemctl reboot, reboot, shutdown -r
+
+8) The command systemctl set-default sets the default target for the system at boot time.
+* True
+
+9) Which command(s) would move the system into the graphical.target?
+* systemctl isolate graphical.target
+
+10) Which man page shows information about unit configuration files and their locations?
+* systemd.unit
+
+11) Which command(s) display available systemd unit types?
+* systemctl -t help
+
+12) How can you list the active state of all loaded service unit configuration files?
+* systemctl list-units --type=service
+
+13) Which command(s) would list unit configuration files that are dependencies for the network target?
+* systemctl list-dependencies network.target
+
+14) Systemctl halt shuts down and halts the system.
+* True
+
+15) As part of the application build-out on your Red Hat 7 Enterprise system, you have a process that is running backend maintenance tasks. These maintenance tasks are not important and shouldn't take priority over other tasks on the system. How might you tell the system to assign CPU usage to this process only after other higher priority items have been completed or only if they do not need the CPU?
+* Set the nice priority to 19 on the process using renice, nice or top.
+
+16) How can you list all failed service unit configuration files?
+* systemctl --failed --type=service
+
+17) Which command(s) would reboot the system five minutes from now and notify all users on the system of the impending reboot?
+* shutdown -r +5 rebooting!
+
+18) What line in the bootloader entry do you need to edit after interrupting the boot process to change the current boot target?
+* linux16
+
+19) Which command(s) would power off the system?
+* poweroff, systemctl poweroff, shutdown -P
+
+20) Which command(s) would show all available targets on the system?
+* systemctl list-unit-files --type=target
+
+21) What is the percentage load average for the following processor count and given load for the 5 minute load average?
+[root@localhost]# uptime
+ 09:55:50 up 16:35, 3 users, load average: 4.05, 3.03, 3.75
+[root@localhost ~]# grep "model name" /proc/cpuinfo | wc -l
+ 5
+* 60%
+
+22) If your system is currently in the graphical.target, which command(s) would move it out of the graphical.target and into the multi-user.target?
+* systemctl isolate multi-user.target
+
+23) Where are the configuration files for systemd located?
+* /usr/lib/systemd/system, /etc/systemd/system
+
+24) Which command(s) would list all service unit configuration files regardless of whether they are active or not?
+* systemctl --type=service --all
+
+25) Which command creates or updates the manual page index caches; something you should run after installing new man pages?
+* mandb
+
+26) Which man page shows specific configuration options for a service unit configuration?
+* man systemd.service
