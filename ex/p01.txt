@@ -1,0 +1,133 @@
+#######
+Exercise: Understanding umask
+
+1. View current umask permissions and then, for the current shell session, set umask permissions to 0.
+
+[root@localhost ~]# umask
+0022
+[root@localhost ~]# umask 0
+[root@localhost ~]# umask
+0000
+Note: umask adds leading zeros
+
+2. Navigate to the /tmp directory and touch file1 and mkdir dir1. View current permissions.
+
+[root@localhost user]# cd /tmp
+[root@localhost tmp]# touch file1
+[root@localhost tmp]# mkdir dir1
+[root@localhost tmp]# ls -l
+total 0
+drwxrwxrwx. 2 root root 6 May  1 11:10 dir1
+-rw-rw-rw-. 1 root root 0 May  1 11:10 file1
+
+3. Mask permissions for the "other" users to write a file when created, then touch file2 and view permissions.
+
+Tip: If file permissions start at 666, and you want to "remove/mask" permissions for other users to read and write, then you need to subtract the octoal notation representing write permissions, which is 2.
+
+[root@localhost tmp]# umask 002
+[root@localhost tmp]# touch file2
+[root@localhost tmp]# ls -l
+total 0
+drwxr-xr-x. 2 root root 6 May  1 11:10 dir1
+-rw-rw-rw-. 1 root root 0 May  1 11:10 file1
+-rw-rw-r--. 1 root root 0 May  1 11:13 file2
+
+4. Mask write access for group members and the write for "other" permissions, then touch file3 and view permissions.
+
+[root@localhost tmp]# umask 022
+[root@localhost tmp]# touch file3
+[root@localhost tmp]# ls -l
+-rw-r--r--. 1 root root 0 May  1 11:16 file3
+
+5. Mask read and write permissions for the owner of a file, then touch file4 and mkdir dir3 and view permissions.
+
+[root@localhost tmp]# umask 600
+[root@localhost tmp]# touch file4
+[root@localhost tmp]# mkdir dir3
+[root@localhost tmp]# ls -l
+total 0
+d--xrwxrwx. 2 root root 6 May  1 11:18 dir3
+----rw-rw-. 1 root root 0 May  1 11:18 file4
+
+6. Mask all permissions, including execute permissions, on new directories, then touch file5.
+
+[root@localhost tmp]# umask 777
+[root@localhost tmp]# touch file5
+Tip: Setting umask 666 would mask all permissions on files but leave execute on directories. Directories need execute permissions for someone to change into the directory.
+
+7. Mask read/write access for group for non-privileged users and other permissions and make these changes persistent.
+
+[root@localhost ]#vim /etc/bashrc
+if [ $UID -gt 199 ] && [ "`id -gn`" = "`id -un`" ]; then
+    umask 066
+else
+    umask 022
+fi
+[root@localhost ]#vim /etc/profile
+if [ $UID -gt 199 ] && [ "`id -gn`" = "`id -un`" ]; then
+    umask 066
+else
+    umask 022
+fi
+Note: For users to have sudo privileges (be a privileged user), they generally have a primary group of "wheel". What the script says, is if the primary/effective group does not match the username (and remember generally users primary/effective group will be the same as the username), then consider the user a privileged user.
+
+#######
+Exercise: Archiving and Compressing Files
+
+1. While working in the user root's home directory, create a tar archive of the entire /var/log directory and name the tar file "logs.tar".
+
+[root@localhost ~]# tar -cvf logs.tar /var/log
+
+2. List the contents of the tar archive into standard output.
+
+[root@localhost ~]# tar -tf logs.tar
+
+3. Using gzip, compress the tar file.
+
+[root@localhost ~]# gzip logs.tar
+
+4. Extract the contents of the "log.tar.gz" directory into /root/var/log.
+
+[root@localhost ~]# tar -zxvf logs.tar.gz
+
+5. Using star, create an archive of the contents of the newly-created log directory in /root/var/log into a file called "user-logs.tar". Be sure to preserve the entire path structure so that the archive indicates exactly where the file belonged. i.e. /root/var/log should preceed every file in the archive.
+
+[root@localhost ~]# yum install star
+[root@localhost ~]# star -c /root/var/log f=user-logs.tar 
+star: 205 blocks + 0 bytes (total of 2099200 bytes = 2050.00k).
+
+6. List the contents of the tar file.
+
+[root@localhost ~]# star -t f=user-logs.tar
+7. Compress the star archive into a bzip2 compressed file.
+
+[root@localhost ~]# yum install bzip2
+[root@localhost ~]# bzip2 user-logs.tar
+
+8. Decompress the star archive into the /root home directory.
+
+[root@localhost root]# star -bz -x f=user-logs.tar.bz2
+
+#######
+Exercise: Finding Files with locate and find
+1. Download and install the locate utility.
+
+[root@anthony1 ~]# yum install mlocate
+
+2. Using the locate utility, search for the "motd" file on the system.
+
+[root@localhost ~]# locate motd
+/etc/motd
+...
+
+3. Add a new user on the system called "mary".
+
+[root@localhost ~]# useradd mary
+
+4. Using the find utility, remove all files owned by mary.
+
+[root@localhost ~]# find / -user mary -exec rm {} \;
+
+5. Using the find utility, find all files that were modified in the last 3 days.
+
+[root@localhost ]# find / -mtime -3
