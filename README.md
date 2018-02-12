@@ -49,9 +49,11 @@
 * label xfs `xfs_admin -L myfsname /dev/xvdf1`
 * label ext4 `tune2fs -L myfsname /dev/xvdf2`
 * `mount -a` `umount -a` `df -h`
-* `mkswap`
+* `mkswap -L labelname`
 * `swapon /dev/ship/myswap1` `swapoff /dev/xvdg1`
-* `swapon -a` `swapoff -a`. summary `swapon -s`
+* `swapon -a` `swapoff -a`.
+* Summary `swapon -s`. Equivalent to `cat /proc/swaps`
+* `free -m`
 #### `P4` [qz](qz/p04.md) [ex](ex/p04.txt) [note](note/p04.md) Create and Configure File System
 * `mkfs.vfat` `mkfs.ext4` ...
 * `fsck.vfat` `fsck.ext4` ...
@@ -71,6 +73,8 @@
 
 #### Labs
 * `P2` - [Kill or Adjust Process Priorities](lab/kill-adjust-process-priorities.pdf)
+* `P3` - [Managing Logical Volumes on Red Hat Enterprise 7](lab/lvm-with-redhat7.pdf)
+* `P3` - [Add and Remove Volumes, Partition Disks, and Work with LVM](work-with-lvm.pdf)
 * `P4` - [Create and Mount SAMBA and CIFS Fileshares](lab/deploy-samba-server-rhcsa.pdf)
 
 ---

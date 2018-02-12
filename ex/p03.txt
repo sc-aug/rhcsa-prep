@@ -136,7 +136,8 @@ Exercise: Creating Persistent Mounts with File System Labels
 
 2. Create two partitions, 500M each, on the device.
 
-[root@localhost dev]# fdisk /dev/xvdfWelcome to fdisk (util-linux 2.23.2).
+[root@localhost dev]# fdisk /dev/xvdf
+Welcome to fdisk (util-linux 2.23.2).
 Changes will remain in memory only, until you decide to write them.
 Be careful before using the write command.
 Command (m for help): n
