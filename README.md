@@ -1,9 +1,5 @@
 ## RHCSA Prep
 
-```
-tmp: stick-bit & P4 last-3-lectures
-```
-
 * `P1` [qz](qz/p01.md) [ex](ex/p01.txt) [note](note/p01.md) Essential Tools
   - `man` `info` `cat` `echo` `less` `more` `head` `tail`
   - stdin stdout stderr, I/O redirection `>` `>>` `|` accepts stdout. `1>` `2>` `&>` `2>&1` `1>&2`
@@ -18,15 +14,31 @@ tmp: stick-bit & P4 last-3-lectures
   - `newgrp` - log in to a new group
   - SetUID SetGID sticky-bit
   - `umask` `/etc/bashrc` `/etc/profile`
-  - wheel group ??
-  - `man /usr/share/man` `info /usr/share/info` `/usr/share/doc` `rpm package` `apropos` `mandb`
-  - `which` `whatis` `whereis`
+  - [`wheel` group](https://en.wikipedia.org/wiki/Wheel_(Unix_term))
+  - `man /usr/share/man` `info /usr/share/info` `/usr/share/doc` `rpm package` `apropos`(search the manual page names and descriptions) `mandb`
+  - `which` `whatis`(display manual page descriptions) `whereis`
   - `find` `locate` `mlocate`-`updatedb` `apropos`-`mandb` `stat`-fileinfo
 * `P2` [qz](qz/p02.md) [ex](ex/p02.txt) [note](note/p02.md) Operate Running System
-  - `port 22` `scp` `sftp`
+  - `shutdown` `poweroff`-`init 0` `halt` `reboot`-`init 6`
+  - `systemctl -t help` list all types of unit configuration files
   - `systemctl` `unit` `target` `service`
   - `graphical.target` `multi-user.target` `isolate`
-  - `default-target`
+  - `emergency.target` `rescue.target` 
+  - default target
+  - `systemctl list-units` `systemctl list-unit-files`
+  - Interrupt the boot process: edit grub config `systemd.unit=rescue.target`
+  - Interrupt the boot boot to gain access to a system: `rd.break` [link](https://www.certdepot.net/rhel7-interrupt-boot-gain-access-system/)
+  - ??? `man systemd.unit` `man systemd.service`
+  - `ps` `pgrep` `kill` `pkill` `top` `killall`
+  - `kill -l` print a list of signal names
+  - `nice` & `renice` `time`
+  - system load average `top` `w` `uptime`
+  - `cat /proc/cpuinfo`
+  - `/var/log/`
+  - `journalctl` log all events on system
+  - `systemd-analyze blame`
+  - `virsh`
+  - `port 22` `scp` `sftp`
 * `P3` [qz](qz/p03.md) [ex](ex/p03.txt) [note](note/p03.md) Configure Local Storage
   - `fdisk` `gdisk` `blkid` `/etc/fstab`
   - label xfs `xfs_admin -L myfsname /dev/xvdf1`
@@ -48,5 +60,18 @@ tmp: stick-bit & P4 last-3-lectures
 
 ---
 
-Labs
+Labs:
+* `P2` - [Kill or Adjust Process Priorities](lab/kill-adjust-process-priorities.pdf)
 * `P4` - [Create and Mount SAMBA and CIFS Fileshares](lab/deploy-samba-server-rhcsa.pdf)
+
+---
+
+Random Practice:
+
+* [set01](s01.md)
+
+---
+
+Useful Link:
+
+* [CertDepot - RHCSA](https://www.certdepot.net/rhel7/)
