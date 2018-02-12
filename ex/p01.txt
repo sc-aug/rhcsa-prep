@@ -99,6 +99,7 @@ star: 205 blocks + 0 bytes (total of 2099200 bytes = 2050.00k).
 6. List the contents of the tar file.
 
 [root@localhost ~]# star -t f=user-logs.tar
+
 7. Compress the star archive into a bzip2 compressed file.
 
 [root@localhost ~]# yum install bzip2
@@ -110,6 +111,7 @@ star: 205 blocks + 0 bytes (total of 2099200 bytes = 2050.00k).
 
 #######
 Exercise: Finding Files with locate and find
+
 1. Download and install the locate utility.
 
 [root@anthony1 ~]# yum install mlocate
