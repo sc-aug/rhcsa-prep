@@ -55,13 +55,20 @@
 * Summary `swapon -s`. Equivalent to `cat /proc/swaps`
 * `free -m`
 #### `P4` [qz](qz/p04.md) [ex](ex/p04.txt) [note](note/p04.md) Create and Configure File System
+* size of device `cat /proc/partitions` / `fdisk -l`
 * `mkfs.vfat` `mkfs.ext4` ...
 * `fsck.vfat` `fsck.ext4` ...
+* `dumpe2fs` - dump `ext2/ext3/ext4` filesystem information
 * `xfs_info` `xfs_admin` `xfs_repair`
+* FS check & repair: `fsck.vfat` `fsck.ext4` `xfs_repair`
+* **CIFS & NFS**
 * `vgextend` `vgmove` `vgreduce`
 * `lvextend` `xfs_growfs`-xfs `resize2fs`-ext
 * set - GID
-* `getfacl`
+* `getfacl` `setfacl -m u` `setfacl -m g`
+* ??? ACL mask
+* `setfacl -d -m ...`
+* subdirectories & files will inherit default ACL permission of parent directory.
 #### `P5` [qz](qz/p05.md) [ex](ex/p05.txt) [note](note/p05.md) Deploy, Configure and Maintain Systems
 #### `P6` [qz](qz/p06.md) [ex](ex/p06.txt) [note](note/p06.md) Manage Users and Groups
 * `/etc/passwd` `/etc/group` `/etc/shadow`
@@ -74,8 +81,10 @@
 #### Labs
 * `P2` - [Kill or Adjust Process Priorities](lab/kill-adjust-process-priorities.pdf)
 * `P3` - [Managing Logical Volumes on Red Hat Enterprise 7](lab/lvm-with-redhat7.pdf)
-* `P3` - [Add and Remove Volumes, Partition Disks, and Work with LVM](work-with-lvm.pdf)
+* `P3` - [Add and Remove Volumes, Partition Disks, and Work with LVM](lab/work-with-lvm.pdf)
+* `P4` = [Mounting NFS Network File Systems](lab/mounting-nfs-network-fs.txt)
 * `P4` - [Create and Mount SAMBA and CIFS Fileshares](lab/deploy-samba-server-rhcsa.pdf)
+* `P4` = [Extending Existing Logical Volumes](lab/extending-lvm.pdf)
 
 ---
 

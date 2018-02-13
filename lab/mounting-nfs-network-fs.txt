@@ -1,0 +1,37 @@
+Hands-on Lab: Mounting NFS Network File Systems
+
+HOST 1
+--- 1 ---
+# yum install -y nfs-utils nfslock rpcbind 
+# mkdir /nfs_shared
+# touch /nfs_shared/testfile
+# ifconfig
+# vim /etc/hosts
+# vim /etc/exports
+```
+/nfs_shared server2(rw,sync,no_root_squash,no_subtree_check)
+```
+--- 3 ---
+# systemctl restart nfs
+# exportfs -a
+# exportfs
+
+HOST 2
+--- 2 ---
+# yum install -y nfs-utils nfslock rpcbind 
+# ifconfig
+# vim /etc/hosts
+# mkdir /nfs_shared
+--- 4 ---
+# mount -t nfs server1:/nfs_shared /nfs_shared
+# df -h
+# ll /nfs_shared
+# touch file1
+--- 5 ---
+# vim /etc/fstab ## ???
+```
+server1:/nfs_shared /nfs_shared nfs rsize=8192,wsize=8192,timeo=14,intr
+```
+# mount /nfs_shared
+# df -h
+# reboot
