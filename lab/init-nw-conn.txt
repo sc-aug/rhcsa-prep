@@ -1,0 +1,20 @@
+Hands-on Lab: Initializing Network Connectivity
+
+#### Start VM
+
+#### Login as root
+
+#### 
+# nmcli connection show eth0
+# nmcli con mod eth0 connection.autoconnect yes
+# nmcli con up eth0
+
+#### 
+# vim /etc/resolv.conf
+---
+nameserver 192.168.0.1
+---
+
+#### Test
+# ping google.com
+# yum install -y httpd 

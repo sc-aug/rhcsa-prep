@@ -70,6 +70,26 @@
 * `setfacl -d -m ...`
 * subdirectories & files will inherit default ACL permission of parent directory.
 #### `P5` [qz](qz/p05.md) [ex](ex/p05.txt) [note](note/p05.md) Deploy, Configure and Maintain Systems
+* `ping` `ping6` `ifconfig` `ip` `netstat` `ss` `tracepath` `tracepath6` `traceroute` `traceroute6`
+* **attached network device** `/sys/class/net`
+* `nmcli` `/etc/sysconfig/network-scripts/`
+  - `nmcli con show --active`
+  - `nmcli connection delete myconn`
+  - `nmcli connection add con-name "myconn-static" autoconnect no type ethernet ifname eth1 ip4 10.0.0.15 gw4 10.0.0.1`
+* `hostname` `hostnamectl` `/etc/hosts`
+* `/etc/resolv.conf` `dns` `nameserver`
+* `Ctrl-D` = `<EOT>`
+* limitation of `cron`: when the system reboots, all cron jobs will missing [link](https://serverfault.com/questions/52335/job-scheduling-using-crontab-what-will-happen-when-computer-is-shutdown-during)
+* `anacron` is only for privileged users`
+* `crontab -e` -> user
+* `/etc/crontab` -> system
+* `anacron` `anacron -n` `/var/spool/anacron`
+* `systemctl` `enable` `is-enabled` `list-dependencies` `**.target.wants`
+* **`kickstart`**
+
+* gpgkey
+* 
+
 #### `P6` [qz](qz/p06.md) [ex](ex/p06.txt) [note](note/p06.md) Manage Users and Groups
 * `/etc/passwd` `/etc/group` `/etc/shadow`
 * `id` `groups`
@@ -82,9 +102,13 @@
 * `P2` - [Kill or Adjust Process Priorities](lab/kill-adjust-process-priorities.pdf)
 * `P3` - [Managing Logical Volumes on Red Hat Enterprise 7](lab/lvm-with-redhat7.pdf)
 * `P3` - [Add and Remove Volumes, Partition Disks, and Work with LVM](lab/work-with-lvm.pdf)
-* `P4` = [Mounting NFS Network File Systems](lab/mounting-nfs-network-fs.txt)
+* `P4` - [Mounting NFS Network File Systems](lab/mounting-nfs-network-fs.txt)
 * `P4` - [Create and Mount SAMBA and CIFS Fileshares](lab/deploy-samba-server-rhcsa.pdf)
-* `P4` = [Extending Existing Logical Volumes](lab/extending-lvm.pdf)
+* `P4` - [Extending Existing Logical Volumes](lab/extending-lvm.pdf)
+* `P5` - [Initializing Network Connectivity](lab/init-nw-conn.txt)
+* `P5` - [Network Manager Sandbox](lab/nw-manager.txt)
+* `P5` - [Update the Kernel Package to Ensure a Bootable System](lab/update-kernel-package.pdf)
+* `P5` - [Installing and Updating Software](lab/install-update-software.txt)
 
 ---
 

@@ -1,0 +1,36 @@
+Hands-on Lab: Installing and Updating Software
+
+Overview
+This lab covers how to find and install a new package onto a server, how to check that a package installed correctly, and how to add and delete packages from a server. For this lab, we will be extracting the packages Apache and Audacity, as well as deleting and then re-creating an EPEL package.
+
+Repository Configuration:
+
+[epel]
+name=Extra Packages for Enterprise Linux 7 - $basearch
+baseurl=http://download.fedoraproject.org/pub/epel/7/$basearch
+failovermethod=priority
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 
+
+Repository Key File:
+
+wget -O /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 https://getfedora.org/static/352C64E5.txt
+
+=============
+
+# yum update
+# yum install elinks httpd -y
+# yum provides /etc/hosts
+# systemctl start httpd
+# elinks http://localhost
+# cd /etc/yum.repos.d/
+# vim epel.repo
+### replace gpgkey
+# wget ...
+# vim epel.repo
+# yum search audacity
+# yum info audacity
+---
+Repo: eple/x86_64
+---

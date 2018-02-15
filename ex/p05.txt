@@ -1,0 +1,365 @@
+#######
+Exercise: Scheduling Tasks on Red Hat Systems
+
+1. Write a command that issues a statement to the system log with the current uptime information. Schedule this command to run one minute from now.
+
+[root@localhost]# at now +1 minute
+at> logger "The system current uptime is $(uptime)"
+
+2. Wait one minute and check the system log to view the entry. 
+
+[roo@localhost]# journalctl -f
+
+3. Create a new at job that runs at teatime but performs the same log entry as step 1.
+
+[root@localhost]# at teatime
+at> logger "The system current uptime is $(uptime)"
+
+4. Turn the uptime script from step one into an executable script file located in /home/user/ called "uptimelog".
+
+[root@localhost]# vim /home/user/uptimelog
+logger "The system current uptime is $(uptime)"
+[root@localhost]# chmod +x /home/user/uptimelog
+
+5. Schedule an anacronjob so that the script runs every 5 days if it has not currently been run; make sure the job name is "uptimelog".
+
+Note: place the entry at the top of the other entries so it is run first.
+
+[root@localhost]# vim /etc/anacrontab
+5       0       uptimelog       /home/user/uptimelog
+
+6. Run all anacronjobs regardless of their last run timestamp.
+
+[root@localhost] anacron -f
+
+7. View the anacron timestamps for your uptimelog job.
+
+[root@localhost]# cat /var/spool/anacron/uptimelog
+
+8. Using the same /home/user/uptimelog script, schedule the script to run once a day using cron.
+
+[root@localhost]# cp /home/user/uptimelog /etc/cron.daily/
+
+9. Create a custom scheduled cron that runs the uptimelog every 5 minutes. 
+
+[root@localhost]# vim /etc/cron.d/uptimelog
+*/5 * * * * root /home/user/uptimelog
+
+#######
+Exercise: Working with Time Services
+
+1. Log in to the lab server and determine which timezone should be used based on your location.
+
+[root@localhost]# tzselect 
+or 
+[root@localhost]# timedatectl list-timezones
+
+2. Update the system's timezone to America/Chicago.
+
+[EXAMPLE]
+[root@localhost]# timedatectl set-timezone America/Chicago
+
+3. Update the system time to match your current local time. **Remember you need to turn off NTP first for this to work**.
+
+[root@localhost]# timedatectl set-ntp false
+[root@localhost]# timedatectl set-time 02:00:00
+
+4. Display current time and date information.
+
+[root@localhost]# timedatectl
+
+5. Update the NTP time services to be 0.pool.ntp.org, 1.pool.ntp.org, 2.pool.ntp.org, and 3.pool.ntp.org.
+
+[root@localhost]# vim /etc/chrony.conf
+# Use public servers from the pool.ntp.org project.
+# Please consider joining the pool (http://www.pool.ntp.org/join.html).
+server 0.pool.ntp.org iburst
+server 1.pool.ntp.org iburst
+server 2.pool.ntp.org iburst
+server 3.pool.ntp.org iburst
+
+6. Turn NTP back on and apply the changes to the chronyd service.
+
+[root@localhost]# timedatectl set-ntp true
+[root@localhost]# systemctl restart chronyd
+
+7. Verify the new time servers are properly working with chronyd.
+
+[root@localchost] chronyc sources -v
+
+#######
+Exercise: Working with Yum
+
+1. Updating your system is an important part of being a systems administrator. However, sometimes just blindly performing a "yum update" on your system to update all packages is ill-advised. Issue the proper command to view all packages that have an available update, but do not update all packages.
+
+[root@localhost ~]# yum check-update
+
+2. Search the yum repository for the Apache web server.
+
+[root@localhost ~]# yum search apache http server
+
+3. View information about the Apache web server package.
+
+[root@localhost ~]# yum info httpd
+
+4. Download and install the Apache web server.
+
+[root@localhost ~]# yum install httpd
+
+5. List the installed packages and verify the Apache web server is in fact installed.
+
+[root@localhost ~]# yum list installed httpd
+or
+[root@localhost ~]# yum list installed | grep httpd
+
+6. Issue the proper command to show all packages that provide the /var/www/html directory.
+
+[root@localhost ~]# yum provides /var/www
+or
+[root@localhost ~]# yum whatprovides /var/www
+
+7. Issue the command to update the Apache web server package.
+
+[root@localhost ~]# yum update httpd
+
+8. Remove the Apache web server package. 
+
+[root@localhost ~]# yum remove httpd
+
+#######
+Exercise: Working with Yum Groups ??
+
+1. List available groups.
+
+[root@localhost ~]# yum group list
+
+2. List all packages that belong to the "Security Tools" group. When looking at this, what packages will be installed?
+
+[root@localhost ~]# yum group info "Security Tools"
+
+3. Install the "Security Tools" group.
+
+[root@localhost ~]# yum group install "Security Tools"
+
+4. Undo the install of the "Security Tools" group.
+
+[root@localhost ~]# yum history
+Loaded plugins: amazon-id, rhui-lb
+ID     | Login user               | Date and time    | Action(s)      | Altered
+-------------------------------------------------------------------------------
+    17 |                    | 2015-05-02 11:10 | Install        |    3   
+    16 |                    | 2015-05-02 10:55 | Erase          |    1   
+    15 |                    | 2015-05-02 10:51 | Install        |    5   
+
+[root@localhost ~]# yum history info 17
+Loaded plugins: amazon-id, rhui-lb
+Transaction ID : 17
+Begin time     : Sat May  2 11:10:49 2015
+Begin rpmdb    : 666:2f8b0d9de8e03b35809bb3623696ba61ab589deb
+End time       :            11:10:51 2015 (2 seconds)
+End rpmdb      : 669:84e7861867838346e3c843a204e1ad2b5a0cc4ba
+User           :  
+Return-Code    : Success
+Command Line   : group install Security Tools
+
+[root@localhost ~]# yum history undo 17
+
+#######
+Exercise: Working with RPM
+
+1. Download the "nano" RPM package using yumdownloader and change the package name to nano.rpm for this exercise.
+
+[root@localhost ~]# yumdownloader nano
+
+[root@localhost ~]# mv nano-2.3.xxxxx.rpm nano.rpm
+
+2. Install the nano program. 
+
+[root@localhost ~]# rpm -ivh nano.rpm
+
+3. Query to see if nano is in fact installed.
+
+[root@localhost ~]# rpm -qa nano
+
+4. List all files installed as part of nano.
+
+[root@localhost ~]# rpm -ql nano
+
+5. List all documentation parts of the RPM package and it's location.
+
+[root@localhost ~]# rpm -qd nano
+
+6. Remove the nano package.
+
+[root@localhost ~]# rpm -e nano
+
+7. Query to see if the package is installed.
+
+[root@localhost ~]# rpm -qa | grep nano
+
+#######
+Exercise: Managing Third Party Repositories
+
+1. Using the yum config manager, enable the epel repository without gpg. repo: http://dl.fedoraproject.org/pub/epel/7/x86_64/
+
+[root@anthony1 ~]# yum-config-manager --add-repo=http://dl.fedoraproject.org/pub/epel/7/x86_64/
+
+2. View and verify that the repository is in fact enabled on the system.
+
+[root@anthony1 ~]# yum repolist 
+
+Loaded plugins: amazon-id, rhui-lb
+repo id                                                          repo name                                                                  status
+dl.fedoraproject.org_pub_epel_7_x86_64_                          added from: http://dl.fedoraproject.org/pub/epel/7/x86_64/                 7,753
+rhui-REGION-rhel-server-rh-common/7Server/x86_64                 Red Hat Enterprise Linux Server 7 RH Common (RPMs)                           131
+repolist: 7,884
+
+3. Using yum config manager, disable the epel repository.
+
+[root@anthony1 ~]# yum-config-manager --disable dl.fedoraproject.org_pub_epel_7_x86_64_
+
+4. Verify the repository is disabled.
+
+[root@anthony1 ~]# yum repolist
+
+5. Using yum config manager, delete the repository from the system. There is not a command for removing the repository only disabling.
+
+[root@anthony1 yum.repos.d]# rm -rf /etc/yum.repos.d/dl.fedoraproject.org_pub_epel_7_x86_64_.repo 
+
+6. Instead of using config manager, manually create the repo config file and enable the repository with the repo name "fedora-epel.repo".
+
+[root@anthony1 yum.repos.d]# vim /etc/yum.repos.d/fedora-epel.repo
+
+[EPEL]
+name=Fedora EPEL 7
+baseurl=http://dl.fedoraproject.org/pub/epel/7/x86_64/
+enable=1
+gpgcheck=0
+
+7. View and verify that the repository is in fact enabled on the system.
+
+[root@anthony1 yum.repos.d]# yum repolist
+Loaded plugins: amazon-id, rhui-lb
+EPEL                                                                                                                       | 4.4 kB  00:00:00     
+(1/2): EPEL/group_gz                                                                                                       | 257 kB  00:00:00     
+(2/2): EPEL/primary_db                                                                                                     | 4.2 MB  00:00:01     
+(1/2): EPEL/updateinfo                                                                                                     | 370 kB  00:00:00     
+(2/2): EPEL/pkgtags                                                                                                        | 1.4 MB  00:00:00     
+repo id                                                              repo name                                                              status
+EPEL                                                                 Fedora EPEL 7                                                          7,753
+rhui-REGION-rhel
+
+8. Download the GPG key from the epel repository and configure the .repo file to use the GPG key
+
+[root@localhost]# cd /etc/pki/rpm-gpg; wget https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
+[root@localhost]# vim /etc/yum.repos.d/dl.fedoraproject.org_pub_epel_7_x86_64_.repo
+
+[dl.fedoraproject.org_pub_epel_7_x86_64_]
+name=added from: http://dl.fedoraproject.org/pub/epel/7/x86_64/
+baseurl=http://dl.fedoraproject.org/pub/epel/7/x86_64/
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+
+Note: You can also take the URL of the gpg key and import it with the rpm command
+[root@localhost]# rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
+
+9. Disable the repository on the system and verify that it is disabled.
+
+[EPEL]
+name=Fedora EPEL 7
+baseurl=http://dl.fedoraproject.org/pub/epel/7/x86_64/
+enable=0
+gpgcheck=0
+[root@anthony1 yum.repos.d]# yum repolist
+
+10. Remove the repository from the system.
+
+[root@anthony1 yum.repos.d]# rm -rf /etc/yum.repos.d/dl.fedoraproject.org_pub_epel_7_x86_64_.repo 
+
+#######
+Exercise: Creating a Local Repository
+
+1. Mount the rhel-server-7.1-x86_64-dvd.iso located in /root home directory to /repos/local (be sure to create /repos/local).
+
+[root@localhost ~]# mkdir -p /repos/local
+
+[root@localhost ~]# mount -o loop rhel-server-7.1-x86_64-dvd.iso /repos/local
+
+mount: /dev/loop0 is write-protected, mounting read-only
+
+2. Manually create the repo configuration file in the proper location with the proper information, assume no GPG.
+
+[root@localhost ~]# vim /etc/yum.repos.d/local.repo
+[local-repo]
+name=Red Hat Linux Local Repo
+baseurl=file:///repos/local
+enabled=1 
+gpgcheck=0
+
+3. For testing, disable or delete all other repos except the local repo. Please note, if you delete them you will need to rebuild your lab server.
+
+4. Clean previous yum repo information (clean the cache)
+
+[root@localhost ~]# yum clean all
+
+5. View all enabled repos.
+
+[root@localhost ~]# yum repolist
+
+6. Download and install emacs and, on the install screen, verify it is being installed from the local-repo.
+
+[root@localhost ~]# yum install emacs
+
+7. Remove emacs.
+
+[root@localhost ~]# yum remove emacs
+
+8. Configure the local.repo to use GPG to verify that the packages are legitimate. (This is most commonly used for remote repositories. However, for the exercise it will be easier since it's all included as part of the iso and local machine.)
+(http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7)
+
+[local-repo]
+name=Red Hat Linux Local Repo
+baseurl=file:///repos/local
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+#######
+Exercise: Networking
+
+1. View the current hostname.
+
+[root@anthony1 ~]# hostname
+
+2. Set temporary hostname in the shell to "myserver.domain.com".
+
+[root@anthony1 ~]# hostname myserver.domain.com; exec bash
+
+3. For the "System eth0" connection, add the following DNS for the resolv.conf file 8.8.8.8. Ensure the changes are persistent after a reboot.
+
+[root@anthony1 ~]# nmcli con mod "System eth0" +ipv4.dns 8.8.8.8
+
+4. Modify your hostname to ensure it is a permanent change on the system (persistent and will survive reboots).
+
+Note: You can edit the /etc/hostname file or perform the following command.
+[root@anthony1 ~]# hostnamectl set-hostname myserver.domain.com
+
+5. Add a file based host entry so the domain linuxacademy.com points to 10.0.0.1
+
+[root@anthony1 ~]# echo "10.0.0.1 linuxacademy.com" >> /etc/hosts
+[root@anthony1 ~]# getent hosts linuxacademy.com
+10.0.0.1        linuxacademy.com
+
+6. Open the correct file that determines the lookup order of DNS (file based vs external).
+
+[root@anthony1 ~]# vim /etc/nsswitch.conf
+---
+hosts: files dns myhostname
+---
+
+7. View TCP ports on the system that are listening for connections and view ports that have established connections. 
+
+[root@anthony1 ~]# ss -tan
+
+#######

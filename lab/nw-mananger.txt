@@ -1,0 +1,120 @@
+Hands-on Lab: Network Manager Sandbox
+
+### Configure Networking and Hostname Resolution Statically or Dynamically: Network Manager
+```
+# ls /sys/class/net ### network device attached
+# nmcli dev status
+# nmtui
+# nmcli <tab>
+agent       connection  device      general     help        monitor     networking  radio
+# nmcli con show ### shows all connection
+# cd /etc/sysconfig/network-scripts/ ### network config scripts
+# nmcli con add help
+# nmcli connection add con-name "myconn" autoconnect yes type ethernet ifname eth1
+Connection 'myconn' (5629878f-36c4-471c-83da-6f44bba8b8e3) successfully added.
+# nmcli con show
+# nmcli con show --active
+NAME         UUID                                  TYPE            DEVICE
+System eth0  5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  802-3-ethernet  eth0
+myconn       5629878f-36c4-471c-83da-6f44bba8b8e3  802-3-ethernet  eth1
+# nmcli dev show ## show devices
+# vim /etc/sysconfig/network-scripts/ifcfg-myconn
+#
+# ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc pfifo_fast state UP qlen 1000
+    link/ether 06:97:b2:67:7f:8e brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.100/24 brd 10.0.0.255 scope global dynamic eth0
+       valid_lft 3391sec preferred_lft 3391sec
+    inet6 fe80::497:b2ff:fe67:7f8e/64 scope link
+       valid_lft forever preferred_lft forever
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc pfifo_fast state UP qlen 1000
+    link/ether 06:1f:46:e1:90:d2 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.16/24 brd 10.0.0.255 scope global dynamic eth1
+       valid_lft 2255sec preferred_lft 2255sec
+    inet6 fe80::a64a:35b2:559f:a138/64 scope link
+       valid_lft forever preferred_lft forever
+#
+#
+# nmcli connection add con-name "myconn-static" autoconnect no type ethernet ifname eth1 ip4 10.0.0.15 gw4 10.0.0.1
+Connection 'myconn-static' (f5ab91e3-7452-4c65-bdaa-e0ca9a1eab21) successfully added.
+# nmcli con show
+NAME           UUID                                  TYPE            DEVICE
+System eth0    5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  802-3-ethernet  eth0
+myconn         5629878f-36c4-471c-83da-6f44bba8b8e3  802-3-ethernet  eth1
+myconn-static  f5ab91e3-7452-4c65-bdaa-e0ca9a1eab21  802-3-ethernet  --
+# nmcli con down "myconn"
+# nmcli con up "myconn-static"
+# nmcli con show
+NAME           UUID                                  TYPE            DEVICE
+System eth0    5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  802-3-ethernet  eth0
+myconn-static  f5ab91e3-7452-4c65-bdaa-e0ca9a1eab21  802-3-ethernet  eth1
+myconn         5629878f-36c4-471c-83da-6f44bba8b8e3  802-3-ethernet  --
+#
+# nmcli connection modify myconn-static connection.autoconnect yes
+# vim /etc/sysconfig/network-scripts/ifcfg-myconn-static
+#
+## delete
+# nmcli connection delete myconn
+```
+
+### Configure Networking and Hostname Resolution Statically or Dynamically: Hostname Configuration
+```
+# vim /etc/resolv.conf
+...
+search somedomain.com otherdomain.com  ### search for host end with `somedomain.com` (hostname)
+                                       ### if it's not in somedomain.com then looking for nameserver
+nameserver <IP>     ### remote nameserver to look up hostnames
+...
+#
+####### Poisoning DNS
+# vim /etc/hosts
+...
+# 10.0.0.1 somedomain.com
+...
+#
+#
+#######
+# vim /etc/nsswitch.conf
+---
+hosts: files dns myhostname
+---
+#
+####### Change hostname
+# hostname
+# man hostnamectl
+# hostnamectl set-hostname mydomain.com
+# hostname
+# exec bash ### update current bash
+# hostnamectl status
+   Static hostname: mydomain.com
+         Icon name: computer-vm
+           Chassis: vm
+        Machine ID: f9afeb75a5a382dce8269887a67fbf58
+           Boot ID: 885ae6c8471d4e45bd80c647dba6e049
+    Virtualization: xen
+  Operating System: CentOS Linux 7 (Core)
+       CPE OS Name: cpe:/o:centos:centos:7
+            Kernel: Linux 3.10.0-693.17.1.el7.x86_64
+      Architecture: x86-6
+# 
+####### multiple namesesrver 
+# nmcli con show
+## REPLACE DNS
+# nmcli con mod "System eth0" ipv4.dns 8.8.8.8
+# cat /etc/resolv.conf
+# cat /etc/sysconfig/network-scripts/ifcfg-eth0
+# cat /etc/sysconfig/network-scripts/ifcfg-mycon
+## ADD DNS
+# nmcli con mod mycon +ipv4.dns 8.8.8.8
+## REMOVE DNS
+# nmcli con mod mycon -ipv4.dns 8.8.8.8
+#
+####### getent
+# getent hosts google.com
+```
