@@ -70,6 +70,8 @@
 * `setfacl -d -m ...`
 * subdirectories & files will inherit default ACL permission of parent directory.
 #### `P5` [qz](qz/p05.md) [ex](ex/p05.txt) [note](note/p05.md) Deploy, Configure and Maintain Systems
+* [Yum Commands](http://yum.baseurl.org/wiki/YumCommands)
+* [update vs upgrade](https://askubuntu.com/questions/94102/what-is-the-difference-between-apt-get-update-and-upgrade)
 * `ping` `ping6` `ifconfig` `ip` `netstat` `ss` `tracepath` `tracepath6` `traceroute` `traceroute6`
 * **attached network device** `/sys/class/net`
 * `nmcli` `/etc/sysconfig/network-scripts/`
@@ -109,6 +111,9 @@
 * `P5` - [Network Manager Sandbox](lab/nw-manager.txt)
 * `P5` - [Update the Kernel Package to Ensure a Bootable System](lab/update-kernel-package.pdf)
 * `P5` - [Installing and Updating Software](lab/install-update-software.txt)
+* `P6` - [User Groups and Accounts Tasks](lab/user-groups-and-accounts.pdf)
+* `P6` - [Using an Existing Authentication Service](lab/existing-auth-ad.pdf)
+* `P6` - [Use Existing LDAP Credentials For Single Sign-On](lab/use-ldap-single-signon.pdf)
 
 ---
 
