@@ -1,0 +1,6 @@
+# yum install -y httpd elinks
+
+# ls -Z 
+
+# getenforce
+# setenforce

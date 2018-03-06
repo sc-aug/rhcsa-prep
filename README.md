@@ -88,15 +88,57 @@
 * `anacron` `anacron -n` `/var/spool/anacron`
 * `systemctl` `enable` `is-enabled` `list-dependencies` `**.target.wants`
 * **`kickstart`**
-
 * gpgkey
-* 
 
 #### `P6` [qz](qz/p06.md) [ex](ex/p06.txt) [note](note/p06.md) Manage Users and Groups
 * `/etc/passwd` `/etc/group` `/etc/shadow`
+* `/etc/passwd` -> `:/sbin/nologin`
+* primary group & supplementary group
 * `id` `groups`
-* `useradd` `userdel` `usermod`
+* `useradd` `userdel -r` `usermod`
+* `usermod`
+  - lock/unlock user
+  - change userid
+  - `-c` change the GECOS field
+  - `usermod -aG wheel mary`
+  - `usermod -u 1111 mary`
+  - `-s /sbin/nologin` change shell
+* `/etc/login.defs` allows us to automatically sets specific parameters for our login password aging info
+* password aging: command `chage`
+* `groupadd`
+* `getent group wheel`
+* `newgrp` - log in to a new group
+* `groupmod` `-h` `-n` `-g`
+* `chown :grpname mydir`
+* setUID setGID sticky bit
+* realm
+* ADLDAP
+
 #### `P7` [qz](qz/p07.md) [ex](ex/p07.txt) [note](note/p07.md) Manage Security
+* `firewalld` `firewall-cmd`
+  - `--help`
+  - `--get-zones`
+  - `--get-default-zone`
+  - `--list-all`
+  - `--zone=home` `--zone=public`
+  - `--permanent`
+  - `--reload`
+  - `--panic-on`
+  - `--add-port` `--remove-port`
+  - `--add-service` `--remove-service`
+* `ssh-keygen` `ssh-copy-id`
+  - file `.ssh/authorized_keys`
+* passphrase `ssh-agent bash` `ssh-add`
+* SELinux: enforcing permissive disabled
+  - getenforce
+  - setenforce 0
+  - apropos selinux
+  - /etc/selinux/config
+* `semanage fcontext -l`
+* `ps auxZ | grep httpd`
+* `/.autorelabel`
+* `restorecon -Rv /content`
+* `getsebool`
 
 ---
 
@@ -114,15 +156,19 @@
 * `P6` - [User Groups and Accounts Tasks](lab/user-groups-and-accounts.pdf)
 * `P6` - [Using an Existing Authentication Service](lab/existing-auth-ad.pdf)
 * `P6` - [Use Existing LDAP Credentials For Single Sign-On](lab/use-ldap-single-signon.pdf)
-
----
-
-#### Random Practice
-
-* [set01](s01.md)
+* `P7` - [Red Hat Security With FirewallD](lab/sec-with-firewalld.pdf)
+* `P7` - [Regaining Access to a System](lab/regain-access-server.pdf)
+* `P7` - [Configure SELinux and Add - Restore Security Contexts](lab/config-selinux.txt)
+* `P7` - [Allowing Programs Through the Firewall](lab/allowing-prog-thru-firewall.txt)
 
 ---
 
 #### Useful Link:
 
 * [CertDepot - RHCSA](https://www.certdepot.net/rhel7/)
+
+---
+
+#### Trifle Stuff
+
+* vnc port 5901

@@ -1,0 +1,3 @@
+# firewall-cmd
+# firewall-cmd --add-service=http --permanent
+# firewall-cmd --reload
